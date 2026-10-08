@@ -124,3 +124,9 @@ namespace ConsoleApp10
 }
 
 ```
+`Результат выполнения:`
+<picture>
+  <img src="https://github.com/KseniaBashkatova/Task5-/blob/main/assets/screens/Снимок%20экрана%202026-10-08%20220217.png?raw=true">
+</picture>
+```
+
