@@ -10,119 +10,92 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleApp10
+namespace TacticalAssault
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("=== ТАКТИЧЕСКАЯ ОПЕРАЦИЯ: ШТУРМ ЗДАНИЯ ===\n");
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+            Console.WriteLine("=== Штурмовая операция: Тактический спецназ ===\n");
 
-            // ИНЖЕНЕР ИНВЕНТАРЯ (Студент 1)
-            // 1. Создать массив боекомплекта бойца tacticalGear на 5 слотов.
+            // 1. Создание массива боекомплекта бойца tacticalGear на 5 слотов
             string[] tacticalGear = { "Бронежилет", "Светошумовая граната", "Тактическая аптечка", "Тепловизор", "Штурмовой магазин" };
 
-            // 4. Вывести перечень амуниции через цикл foreach.
-            Console.WriteLine("Текущая амуниция бойца:");
-            foreach (string item in tacticalGear)
+            // 2. Синхронные массивы для 3 рубежей обороны
+            string[] sectors = { "Левый фланг (холл)", "Центральный коридор", "Правый фланг (лестница)" };
+            int[] enemyCounts = { 1, 1, 1 }; // Часовой, Стрелок, Командир
+            int[] enemyHPs = { 30, 75, 130 };
+
+            // 3. Массив времени реакции на угрозу (в миллисекундах)
+            int[] reactionTimes = { 420, 315, 550, 290, 380 };
+
+            // 4. Вывод перечня амуниции через цикл foreach
+            Console.WriteLine("Текущий боекомплект бойца:");
+            foreach (var item in tacticalGear)
             {
                 Console.WriteLine($"- {item}");
             }
             Console.WriteLine();
 
-            // 5. Реализовать бросок "Светошумовая граната": проверка через Array.IndexOf и замена на "Пусто".
-            UseItem(tacticalGear, "Светошумовая граната");
-
-            // 10. Очистить последние 2 слота снаряжения через Array.Clear после форсирования дымовой завесы.
-            // Очищаем 2 элемента, начиная с индекса 3 (4-й и 5-й слоты).
-            Array.Clear(tacticalGear, 3, 2);
-            Console.WriteLine("\nПосле форсирования дымовой завесы очищены слоты 4 и 5:");
-            foreach (string item in tacticalGear)
+            // 5. Реализация броска "Светошумовая граната"
+            Console.WriteLine("Боец выдергивает чеку и бросает светошумовую гранату...");
+            int grenadeIndex = Array.IndexOf(tacticalGear, "Светошумовая граната");
+            if (grenadeIndex != -1)
             {
-                Console.WriteLine($"- {item ?? "Пусто"}");
-            }
-            Console.WriteLine();
-
-            // ИНЖЕНЕР БОЕВОЙ ЛОГИКИ (Студент 2)
-            // 2. Задать синхронные массивы для 3 рубежей обороны: сектор, численность живой силы, секторный урон.
-            string[] sectors = { "Главный холл", "Серверная", "Крыша" };
-            int[] enemyCounts = { 4, 2, 1 };
-            int[] sectorDamage = { 15, 40, 60 }; // Урон, который наносят противники в этих секторах
-
-            // 3. Создать массив времени реакции на угрозу reactionTimes (в миллисекундах) на 5 выходов из-за угла.
-            int[] reactionTimes = { 450, 210, 670, 180, 330 };
-
-            // 6. Записать число попаданий по секторам в целочисленный массив hitsLog.
-            // Симуляция штурма: сколько точных выстрелов сделал боец в каждом секторе
-            int[] hitsLog = { 12, 5, 2 };
-
-            // 7. Найти минимальное время реакции (лучший показатель бойца) в массиве reactionTimes.
-            // Ручной поиск минимума (как в теоретической шпаргалке)
-            int bestReaction = reactionTimes[0];
-            for (int i = 1; i < reactionTimes.Length; i++)
-            {
-                if (reactionTimes[i] < bestReaction)
-                {
-                    bestReaction = reactionTimes[i];
-                }
-            }
-            Console.WriteLine($"Лучшее время реакции (минимальное): {bestReaction} мс");
-
-            // 8. Вычислить общее число попаданий штурмовика по всем секторам.
-            int totalHits = 0;
-            foreach (int hit in hitsLog)
-            {
-                totalHits += hit;
-            }
-            Console.WriteLine($"Общее число попаданий по всем секторам: {totalHits}\n");
-
-            // 9. Отсортировать массив времени реакции бойца методом Array.Sort.
-            Console.WriteLine("Сортировка времени реакции (от худшего к лучшему):");
-            Console.WriteLine("До: " + string.Join(", ", reactionTimes));
-            Array.Sort(reactionTimes); // Сортирует по возрастанию
-            Console.WriteLine("После Array.Sort: " + string.Join(", ", reactionTimes));
-
-            // Для наглядности развернем массив, чтобы увидеть рейтинг от лучшего к худшему
-            Array.Reverse(reactionTimes);
-            Console.WriteLine("После Array.Reverse (рейтинг от лучшего к худшему): " + string.Join(", ", reactionTimes));
-            Console.WriteLine();
-
-            // Вывод аналитической сводки по рубежам обороны
-            Console.WriteLine("=== АНАЛИТИКА РУБЕЖЕЙ ОБОРОНЫ ===");
-            for (int i = 0; i < sectors.Length; i++)
-            {
-                Console.WriteLine($"Сектор: {sectors[i]} | Живая сила: {enemyCounts[i]} | Потенциальный урон: {sectorDamage[i]} | Ваши попадания: {hitsLog[i]}");
-            }
-        }
-
-        /// <summary>
-        /// Пытается найти предмет в экипировке и заменить его на "Пусто".
-        /// Демонстрирует работу Array.IndexOf и прямую индексацию.
-        /// </summary>
-        /// <param name="gear">Массив экипировки.</param>
-        /// <param name="itemName">Название искомого предмета.</param>
-        static void UseItem(string[] gear, string itemName)
-        {
-            Console.WriteLine($"\nДействие: Поиск и применение '{itemName}'...");
-
-            // Array.IndexOf возвращает -1, если элемент не найден
-            int slotIndex = Array.IndexOf(gear, itemName);
-
-            if (slotIndex != -1)
-            {
-                Console.WriteLine($"Предмет '{itemName}' найден в слоте {slotIndex + 1}. Применение...");
-                // Замена конкретного элемента по индексу
-                gear[slotIndex] = "Пусто";
+                tacticalGear[grenadeIndex] = "Пусто";
+                Console.WriteLine("Взрыв! Противники дезориентированы. Слот гранаты очищен.\n");
             }
             else
             {
-                Console.WriteLine($"Ошибка: '{itemName}' не обнаружена в боекомплекте.");
+                Console.WriteLine("Граната не обнаружена в снаряжении.\n");
             }
 
+            // 6. Запись числа попаданий по секторам в массив hitsLog
+            // Симуляция штурма: сектор 0 - 12 попаданий, сектор 1 - 25, сектор 2 - 18
+            int[] hitsLog = { 12, 25, 18 };
+            Console.WriteLine("Результаты штурма по секторам:");
+            for (int i = 0; i < sectors.Length; i++)
+            {
+                Console.WriteLine($"Сектор: {sectors[i]} | Уничтожено целей: {enemyCounts[i]} | Попадания: {hitsLog[i]}");
+            }
+            Console.WriteLine();
+
+            // 7. Поиск минимального времени реакции (лучший показатель)
+            int minReaction = reactionTimes.Min(); // Используем LINQ для краткости (эквивалентно ручному поиску минимума)
+            Console.WriteLine($"Лучшее время реакции бойца: {minReaction} мс.\n");
+
+            // 8. Вычисление общего числа попаданий штурмовика
+            int totalHits = hitsLog.Sum(); // Используем LINQ (эквивалентно циклу с накоплением)
+            Console.WriteLine($"Общее число попаданий штурмовика за операцию: {totalHits}\n");
+
+            // 9. Сортировка массива времени реакции
+            Array.Sort(reactionTimes);
+            Console.WriteLine("Отсортированные показатели времени реакции (от лучшего к худшему):");
+            foreach (var time in reactionTimes)
+            {
+                Console.WriteLine($"{time} мс");
+            }
+            Console.WriteLine();
+
+            // 10. Очистка последних 2 слотов снаряжения после форсирования дымовой завесы
+            Console.WriteLine("Боец форсирует дымовую завесу. Утрата части снаряжения...");
+            // Array.Clear очищает диапазон, начиная с индекса. Длина массива 5, последние два индекса: 3 и 4.
+            Array.Clear(tacticalGear, 3, 2);
+
+            Console.WriteLine("\nИтоговое состояние боекомплекта после зачистки:");
+            for (int i = 0; i < tacticalGear.Length; i++)
+            {
+                // Чтобы вывод был наглядным, покажем индексы слотов
+                Console.WriteLine($"Слот {i + 1}: {tacticalGear[i]}");
+            }
+
+            Console.WriteLine("\n=== Операция завершена. Здание зачищено ===");
+            Console.WriteLine("Нажмите любую клавишу для выхода...");
+            Console.ReadKey();
         }
     }
 }
-
 ```
 `Результат выполнения:`
 <picture>
